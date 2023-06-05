@@ -3,7 +3,9 @@ import Host from "../models/Host.js";
 import bcrypt from "bcryptjs";
 import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken";
-import { env } from 'process';
+import sgMail from "@sendgrid/mail";
+
+import nodemailer from 'nodemailer';
 
 export const register =async (req,res,next)=>{
     try{
@@ -48,11 +50,6 @@ export const login =async (req,res,next)=>{
 
 
 
-
-
-
-
-
 export const registerHost =async (req,res,next)=>{
     try{
         const salt =bcrypt.genSaltSync(10);
@@ -92,4 +89,105 @@ export const loginHost =async (req,res,next)=>{
     }catch(err){
         next(err)
     }
+};
+
+export const forgotPasswordHost = async (req, res, next) => {
+  try {
+    const { email, number } = req.body;
+
+    // Vérifier si l'email et le numéro correspondent à un hôte existant
+    const host = await Host.findOne({ email, number });
+
+    if (!host) {
+      return res.status(404).json({ message: "Aucun hôte trouvé avec ces informations" });
+    }
+
+    // Récupérer l'ID de l'hôte
+    const hostId = host._id;
+
+    // Récupérer le mot de passe non haché de l'hôte
+    const password = host.password;
+
+    // Envoyer l'ID de l'hôte et le mot de passe non haché dans la réponse
+    res.status(200).json({ hostId, password });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+
+
+// Contrôleur pour la modification du mot de passe de l'hôte
+export const changePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const hostId =  req.params.id;
+   // console.log("Admin ID:", hostId);
+    // Vérifier l'ancien mot de passe
+    const host = await Host.findById(hostId);
+    const isPasswordCorrect = await bcrypt.compare(oldPassword, host.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).send({ message: 'Ancien mot de passe incorrect !' });
+    }
+
+    // Générer un nouveau hash pour le nouveau mot de passe
+    const salt = bcrypt.genSaltSync(10);
+    const newHash = bcrypt.hashSync(newPassword, salt);
+
+    // Mettre à jour le mot de passe de l'hôte
+    await Host.findByIdAndUpdate(hostId, { password: newHash });
+
+    res.status(200).send({ message: 'Mot de passe modifié avec succès !' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const NewPassword = async (req, res, next) => {
+  try {
+    const {newPassword } = req.body;
+    const hostId =  req.params.id;
+  
+    const host = await Host.findById(hostId);
+   
+
+    // Générer un nouveau hash pour le nouveau mot de passe
+    const salt = bcrypt.genSaltSync(10);
+    const newHash = bcrypt.hashSync(newPassword, salt);
+
+    // Mettre à jour le mot de passe de l'hôte
+    await Host.findByIdAndUpdate(hostId, { password: newHash });
+
+    res.status(200).send({ message: 'Mot de passe modifié avec succès !' });
+  } catch (err) {
+    next(err);
+  }
+};
+export const changePasswordUser = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId =  req.params.id;
+   // console.log("Admin ID:", hostId);
+    // Vérifier l'ancien mot de passe
+    const user = await User.findById(userId);
+    const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).send({ message: 'Ancien mot de passe incorrect !' });
+    }
+
+    // Générer un nouveau hash pour le nouveau mot de passe
+    const salt = bcrypt.genSaltSync(10);
+    const newHash = bcrypt.hashSync(newPassword, salt);
+
+    // Mettre à jour le mot de passe de l'hôte
+    await User.findByIdAndUpdate(userId, { password: newHash });
+
+    res.status(200).send({ message: 'Mot de passe modifié avec succès !' });
+  } catch (err) {
+    next(err);
+  }
 };

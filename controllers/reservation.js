@@ -4,10 +4,11 @@ import Reservation from '../models/Reservation.js';
 export const createReservation = async (req, res) => {
   try {
     // Extract the reservation data from the request body
-    const { userId, roomId, cardNumber, cardHolderName, expiryDate, cvv ,statut} = req.body;
+    const {numR, userId, roomId, cardNumber, cardHolderName, expiryDate, cvv ,statut,startDate,endDate} = req.body;
 
     // Create a new reservation document
     const reservation = new Reservation({
+      numR,
       userId,
       roomId,
       cardNumber,
@@ -15,6 +16,8 @@ export const createReservation = async (req, res) => {
       expiryDate,
       cvv,
       statut,
+      startDate,
+      endDate,
     });
 
     // Save the reservation to the database

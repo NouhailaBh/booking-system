@@ -117,7 +117,7 @@ const RoomList = ({ rooms, adminId, hotelId, setRooms }) => {
       <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"/>
    </head>
    <body>
-      <div className="header_section2">
+      <div className="header_section1">
          <div className="container-fluid">
            
          </div>
@@ -184,24 +184,26 @@ const RoomList = ({ rooms, adminId, hotelId, setRooms }) => {
   {rooms && rooms.length > 0 ? (
     rooms.map((room) => (
       <div className="col-md-4" key={room._id}>
-       {room.photos && room.photos.length > 0 ? (
-  <div className="row" style={{ display: "flex" }}>
-    <img
-      src={room.photos[0]}
-      alt="Room photo 0"
-      style={{ marginRight: "10px" }}
-    />
-  </div>
-) : (
-  <p>No images available for this room.</p>
-)}
+        {room.photos && room.photos.length > 0 ? (
+          room.photos.map((photo, index) => (
+            <div className="" key={index}>
+             <div className="row" style={{ display: "flex" }}>
+  <img src={photo} alt={`Room photo ${index[0]}`} style={{ marginRight: "10px" }} />
+  
+</div>
 
+            </div>
+          ))
+        ) : (
+          <p>No images available for this room.</p>
+        )}
         <h4 className="prep_text">{room.title}</h4>
         <p className="lorem_text">{room.desc}</p>
         <p className="lorem_text">max de personne: {room.maxPeople}</p>
         <p className="lorem_text">${room.price}</p>
         <p className="lorem_text">Numéro de chambre: {room.numeroRoom}</p>
        
+        <div className="read_bt">
         <Link
           to={`/delete-room/?roomId=${room._id}&id=${hotelId}`}
         >
@@ -212,11 +214,12 @@ const RoomList = ({ rooms, adminId, hotelId, setRooms }) => {
         >
           Modify Room
         </Link>
+        </div>
         <div className="read_bt">
         <Link
-          to={`/roomHost/?roomId=${room._id}&id=${hotelId}`}
+          to={`/RoomHost`}
         >
-          Voir Room
+         View Room
         </Link>
         </div>
       </div>

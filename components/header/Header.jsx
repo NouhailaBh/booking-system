@@ -20,6 +20,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Header = ({ type }) => {
   const [destination, setDestination] = useState("");
+  const userId = sessionStorage.getItem("userId");
   const [openDate, setOpenDate] = useState(false);
   const [dates, setDates] = useState([
     {
@@ -53,7 +54,15 @@ const {dispatch} =useContext(SearchContext)
     dispatch({type:"NEW_SEARCH",payload:{destination,dates,options}});
     navigate("/hotels", { state: { destination, dates, options } });
   };
-
+  const handleLogOut = async (e) => {
+    e.preventDefault();
+    dispatch({ type: "LOGOUT" });
+    sessionStorage.removeItem("userId");
+    navigate("/login");
+  };
+  const handleProfile = () => {
+    navigate(`/userPage`);
+  };
   return (
     <div className="header">
       <div
@@ -68,15 +77,22 @@ const {dispatch} =useContext(SearchContext)
             <span>Stays</span>
           </Link>
            
-          </div>
+          </div>   {userId ? (
+                <li style={{ color:'black',fontSize: '15px',marginLeft: '700px'}}>
+                  <button  className="btn" onClick={handleLogOut}>Log out</button>
+                  <button className="btn" onClick={handleProfile}>Voir profile</button>
+                </li>
+              ) : (
+                <li className="nav-item">
+                  <Link  className="btn" to="/login" style={{ color:'black',fontSize: '20px',marginLeft: '800px'}} >Log in</Link>
+                </li>
+              )}
         </div>
-       
+     
         {type !== "list" && (
           <> 
           
-          {user &&
-          <h1 className="headerTitle">Bienvenue {user.username} !</h1>
-        }
+         
            
   
             <p className="headerDesc">

@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import MapComponent from "./MapComponent";
+
+
+
 const RoomList = ({ rooms, hotelId, setRooms }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const { user, dispatch } = useContext(AuthContext);
@@ -11,11 +14,8 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
   const [maxPrice, setMaxPrice] = useState("");
   const userId = sessionStorage.getItem("userId");
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
+ 
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -48,13 +48,8 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
   const handleEndDateChange = (event) => {
     const selectedEndDate = new Date(event.target.value);
     const today = new Date();
-  
-    today.setHours(0, 0, 0, 0); // Set today's date to the beginning of the day
-  
+    today.setHours(0, 0, 0, 0);
     if (selectedEndDate < today) {
-      // End date is in the past or today
-      // You can show an error message or perform any other necessary action
-      // For now, let's clear the end date
       setEndDate("");
     } else {
       setEndDate(event.target.value);
@@ -62,7 +57,9 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
   };
   
   
-
+  const handleProfile = () => {
+    navigate(`/userPage`);
+  };
   const handleLogOut = async (e) => {
     e.preventDefault();
     dispatch({ type: "LOGOUT" });
@@ -71,11 +68,14 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
   };
   const handleReservation = (roomId) => {
     if (startDate === "" || endDate === "") {
-      alert("Please entrer la date de réservation.");
+      alert("Please enter the reservation date.");
+    } else if (new Date(endDate) < new Date(startDate)) {
+      alert("End date cannot be before start date.");
     } else {
       navigate(`/reservationPage?room=${roomId}&start=${startDate}&end=${endDate}`);
     }
   };
+  
   const filteredRooms = rooms.filter((room) => {
     if (numberOfPeople !== "" && room.maxPeople < parseInt(numberOfPeople)) {
       return false;
@@ -86,32 +86,42 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
     if (maxPrice !== "" && room.price > parseFloat(maxPrice)) {
       return false;
     }
-
+  
     if (startDate !== "" && endDate !== "") {
-      const roomStartDate = new Date(room.startDate);
-      const roomEndDate = new Date(room.endDate);
+      const roomStartDateArray = room.startDate ? room.startDate.map((date) => new Date(date)) : [];
+      const roomEndDateArray = room.endDate ? room.endDate.map((date) => new Date(date)) : [];
       const userStartDate = new Date(startDate);
       const userEndDate = new Date(endDate);
-
-      if (
-        isNaN(roomStartDate.getTime()) ||
-        isNaN(roomEndDate.getTime()) ||
-        isNaN(userStartDate.getTime()) ||
-        isNaN(userEndDate.getTime())
-      ) {
-        // Vérification des dates valides
-        return false;
+  
+      let isRoomAvailable = true;
+  
+      if (roomStartDateArray.length > 0 && roomEndDateArray.length > 0) {
+        for (let i = 0; i < roomStartDateArray.length; i++) {
+          const roomStartDate = roomStartDateArray[i];
+          const roomEndDate = roomEndDateArray[i];
+  
+          if (
+            (roomStartDate <= userStartDate && userStartDate <= roomEndDate) ||
+            (roomStartDate <= userEndDate && userEndDate <= roomEndDate) ||
+            (userStartDate <= roomStartDate && roomStartDate <= userEndDate) ||
+            (userStartDate <= roomEndDate && roomEndDate <= userEndDate)
+          ) {
+            isRoomAvailable = false;
+            break;
+          }
+        }
       }
-
-      if (roomStartDate <= userStartDate && roomEndDate >= userEndDate || userStartDate < roomStartDate && userEndDate >= roomStartDate
-        || userStartDate > roomStartDate && userStartDate < roomEndDate && userEndDate > roomEndDate
-        ) {
+  
+      if (!isRoomAvailable) {
         return false;
       }
     }
-
+  
     return true;
   });
+  
+  
+  
   const isReservationValid = startDate !== "" && endDate !== "";
   return (
 
@@ -148,7 +158,7 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
       <div className="header_section1">
          <div className="container-fluid">
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
-               <a className="navbar-brand"href="index.html">Hotels</a>
+               <a className="navbar-brand"href="">Hotels</a>
                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                <span className="navbar-toggler-icon"></span>
                </button>
@@ -168,16 +178,17 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
                      <div className="login_bt">
                      <ul className="navbar-nav ml-auto">
               {userId ? (
-                <li className="nav-item">
+                <li className="">
                   <button className="btn" onClick={handleLogOut}>Log out</button>
+                  <button className="btn" onClick={handleProfile}>Voir profile</button>
                 </li>
               ) : (
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login">Log in</Link>
+                  <Link className="nav-link" style={{ color:'black',fontSize: '20px',marginLeft: '50px'}} to="/login">Log in</Link>
                 </li>
               )}
 
-                           <li><a href="#"><i className="fa fa-search" aria-hidden="true"></i></a></li>
+                          
                         </ul>
                      </div>
                   </form>
@@ -351,7 +362,7 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
   <div className="read_bt">
   
   <button className="read_bt" onClick={() => handleReservation(room._id)}>Réserver</button>
-    <Link className="read_bt" to={`/voirUneRoom?room=${room._id}`}>Voir plus</Link>
+    <Link className="read_bt" to={`/voirUneRoom?room=${room._id}&hotel=${hotelId}`}>Voir plus</Link>
     
   </div>
 
@@ -418,7 +429,7 @@ const RoomList = ({ rooms, hotelId, setRooms }) => {
          <div className="container">
             <div className="row">
                <div className="col-sm-12">
-                  <h1 className="contact_taital">Get In Touch</h1>
+                  <h1 className="contact_taital">Localisation</h1>
                   <div className="bulit_icon"><img src="/images/bulit-icon.png"/></div>
                </div>
             </div>

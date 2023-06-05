@@ -1,9 +1,6 @@
 import "../pages/newHotel/newhotel.scss";
-import Sidebar from "./sidebar/Sidebar";
-import Navbar2 from "./navbar/Navbar2";
-import DriveFolderUploadOutlinedIcon from "@mui/icons-material/DriveFolderUploadOutlined";
 import { hotelInputs } from "../formSource";
-
+import { ArrowLeftSquare } from 'react-bootstrap-icons';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -26,13 +23,8 @@ const ModifiedHotel = ({ hotels, adminId ,hotelId}) => {
   }, [hotels]);
 
   const handleChange = (e) => {
-    if (e.target.name === "file") {
+    if (e.target.id === 'image') {
       setFiles(e.target.files);
-      const fileURL = URL.createObjectURL(e.target.files[0]); // Crée une URL d'objet à partir du fichier
-      setHotel((prevHotel) => ({
-        ...prevHotel,
-        photos: fileURL, // Met à jour l'état de l'image avec l'URL d'objet
-      }));
     } else {
       setHotel((prevHotel) => ({
         ...prevHotel,
@@ -46,85 +38,102 @@ const ModifiedHotel = ({ hotels, adminId ,hotelId}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-     
+      let updatedHotel = { ...hotel }; // Crée une copie de la pièce existante
+
+      if (files.length > 0) {
+        const imageUrls = await Promise.all(
+          Array.from(files).map(async (file) => {
+            const data = new FormData();
+            data.append("file", file);
+            data.append("upload_preset", "upload");
+            const uploadRes = await axios.post(
+              "https://api.cloudinary.com/v1_1/dcfe1dwkh/image/upload",
+              data
+            );
+            const imageUrl = uploadRes.data.url;
+            return imageUrl;
+          })
+        );
   
-      await axios.put(`http://localhost:4001/api/hotels/${hotelId}`, hotel);
+        updatedHotel= {
+          ...updatedHotel,
+          photos: imageUrls,
+        };
+      }
+  
+      await axios.put(`http://localhost:4001/api/hotels/${hotelId}`, updatedHotel);
       console.log(hotel);
       navigate(`/hostels`);
-      // Redirigez ou effectuez toute autre action après la modification réussie de l'hôtel
     } catch (error) {
       setError(error);
     }
   };
-  
+  const handleNavigate = async (e) => {
+    e.preventDefault();
+    try {
+      navigate(`/hostels`);
+    } catch (error) {
+      setError(error);
+    }
+  };
 
   return (
-    <div className="new">
-      <Sidebar />
-      <div className="newContainer">
-        <Navbar2 />
-        <div className="top">
-          <h1>Modify Hotel</h1>
-        </div>
-
-        <div className="bottom">
-          <div className="left">
-            <img
-              src={
-                files
-                  ? URL.createObjectURL(files[0])
-                  : "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg"
-              }
-              alt=""
-            />
-          </div>
-          <div className="">
-            <form>
-              
-              <div className="formInput">
-                <label htmlFor="file">
-                  Image: <DriveFolderUploadOutlinedIcon className="icon" />
-                </label>
+   
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Modifier Hotel</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
+        <link rel="stylesheet" href="../../fonts3/material-design-iconic-font/css/material-design-iconic-font.min.css"/>
+        <link rel="stylesheet" href="../../css3/style.css"/>
+      </head>
+    
+      <body>
+    
+      <div className="wrapper" style={{backgroundImage: "url('../../images/i666.jpg')"}}>
+  <div className="inner">
+    <div className="image-holder" style={{marginTop: "100px"}}>
+    {hotel.photos && hotel.photos.length > 0 && <img src={hotel.photos[0]} alt="" />}
+    <div className="button-container">
                 <input
                   type="file"
-                  id="file"
-                  multiple
-                  onChange={(e) => setFiles(e.target.files)}
-                  style={{ display: "none" }}
+                  id="image"
+                  accept="image/*"
+                  onChange={handleChange}
                 />
               </div>
-
-              {hotelInputs.map((input) => (
-                <div className="formInput" key={input.id}>
-                  <label>{input.label}</label>
-                  <input
-                    name={input.id}
-                    onChange={handleChange}
-                    type={input.type}
-                    placeholder={input.placeholder}
-                    value={hotel[input.id] || ""}
-                  />
-                </div>
-              ))}
-
-              <div className="formInput">
-                <label>Featured</label>
-                <select
-                  id="featured"
-                  name="featured"
-                  onChange={handleChange}
-                  value={hotel.featured || false}
-                >
-                  <option value={false}> No</option>
-                  <option value={true}>Yes</option>
-                </select>
-              </div>
-              <button  onClick={handleSubmit}>Save Changes</button>
-            </form>
-          </div>
-        </div>
-      </div>
+       
+        <button onClick={handleNavigate}><ArrowLeftSquare/></button>
+      
     </div>
+    <form action="">
+      <h2>Modifier Hotel</h2>
+      <div className="form-wrapper">
+        {hotelInputs.map((input) => (
+          <div className="" key={input.id}>
+          
+            <input className="form-control"
+              name={input.id}
+              onChange={handleChange}
+              type={input.type}
+              placeholder={input.placeholder}
+              value={hotel[input.id] || ""}
+            />
+          </div>
+        ))}
+
+      </div>
+      <button onClick={handleSubmit}>Modifier</button>
+   
+      
+    </form>
+  </div>
+</div>
+
+        
+      </body>
+    </html>
   );
 };
 

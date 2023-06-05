@@ -19,6 +19,10 @@ const HotelList = ({ hotels,adminId}) => {
       setLoggedIn(false); // Mettre à jour l'état à false après la déconnexion
       navigate("/loginHost");
     };
+    const handleProfile = () => {
+      navigate("/hostPage");
+    };
+
    const path = location.pathname;
    const [list, setList] = useState([]);
    const { data, loading, error } = useFetch(path);
@@ -63,10 +67,10 @@ const HotelList = ({ hotels,adminId}) => {
       <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"/>
    </head>
    <body>
-      <div className="header_section">
+      <div className="header_section2">
          <div className="container-fluid">
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
-               <a className="navbar-brand"href="">Hotels</a>
+               <a className="navbar-brand"href="" style={{color:"white"}}>Hotels</a>
                <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               
                </button>
@@ -84,7 +88,8 @@ const HotelList = ({ hotels,adminId}) => {
                   </ul>
                   <form className="form-inline my-2 my-lg-0">
                      <div className="login_bt">
-                       <button className="btn btn-logout " onClick={handleLogOut} >Log out </button>
+                       <a href="" className=" " style={{color:"white"}} onClick={handleLogOut} >Log out </a>
+                       <a href="" className="container " style={{color:"white"}} onClick={handleProfile} >Voir Profile</a>
                          
                            
                      </div>
@@ -180,7 +185,8 @@ const HotelList = ({ hotels,adminId}) => {
                               <div className="read_bt">  
                               <Link to={`/view-rooms/?id=${hotel._id}`}>View Room</Link>
                               <Link to={`/view-reservations/?id=${hotel._id}`}>View Reservations</Link>
-                         
+                              </div>
+                              <div className="read_bt"> 
                           <Link to={`/delete-hotel/?id=${hotel._id}`}>Delete Hotel</Link>
                           <Link to={`/modify-hotel/?id=${hotel._id}`}>Modifier Hotel</Link>
                           </div>

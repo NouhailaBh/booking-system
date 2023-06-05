@@ -40,37 +40,74 @@ const handleClick = async (e) => {
 };
 
     return (
-        <div className="">
-        <div className="container">
-          <div className="row">
-            <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
-              <div className="card border-0 shadow rounded-3 my-5">
-                <div className="card-body p-4 p-sm-5">
-                  <h5 className="card-title text-center mb-5 fw-light fs-5">Sign In</h5>
-                  <form className="bd">
-                    <div className="form-floating mb-3">
-                      <input type="text"  onChange={handleChange} className="form-control" id="username" placeholder="username"/>
-                      <label for="floatingInput">Username</label>
-                    </div>
-                    <div className="form-floating mb-3">
-                      <input type="password" className="form-control" id="password" onChange={handleChange} placeholder="Password"/>
-                      <label for="floatingPassword">Password</label>
-                    </div>
+   
+      <html lang="en">
+        <head>
+          <title>Login 10</title>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
       
-                   
-                    <div className="d-grid">
-                      <button disabled={loading} onClick={handleClick} className="btnn btn-login text-uppercase fw-bold" type="submit">Sign
-                        in</button>
-                        {error && <span>{error.message}</span>}
-                    </div>
-                    <button onClick={handleuserClick}>S'inscrire</button>
-                  </form>
-                </div>
+        <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet"/>
+      
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+        
+        <link rel="stylesheet" href="../../css6/style.css"/>
+      
+        </head>
+        <body className="img js-fullheight" style={{backgroundImage: 'url(../../images2/hero_4.jpg)'}}>
+        <section className="ftco-section">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-6 text-center mb-5">
+                <h2 className="heading-section">Login</h2>
               </div>
             </div>
+            <div className="row justify-content-center">
+              <div className="col-md-6 col-lg-4">
+                <div className="login-wrap p-0">
+                  <h3 className="mb-4 text-center">Vous avez déja un compte</h3>
+                  <form action="#" className="signin-form">
+                    <div className="form-group">
+                      <input type="text" className="form-control" onChange={handleChange} id="username" placeholder="Username" required/>
+                    </div>
+                    <div className="form-group">
+                      <input  type="password" onChange={handleChange} id="password" className="form-control" placeholder="Password" required/>
+                      <span toggle="#password-field" className="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    </div>
+                    <div className="form-group">
+                      <button type="submit"  onClick={handleClick} className="form-control btn btn-primary submit px-3">Sign In</button>
+                    </div>
+                    {error && <span>{error.message}</span>}
+                    <div className="form-group d-md-flex">
+                      <div className="w-50">
+                        
+                      </div>
+                      
+                    </div>
+                  </form>
+                 
+                  <div className="social d-flex text-center">
+                    
+                  </div>
+                </div><a href="" className="px-2 py-6 mr-md-1 rounded"onClick={handleuserClick} style={{marginTop:'3px'}}>
+                  <span className="ion-logo-facebook mr-2"></span> Sign Up</a>
+              <div className="w-20 text-md-right">
+                        <a href="" style={{color: '#fff'}}>Forgot Password</a>
+                      </div></div>
+            </div>
+            
           </div>
-        </div>
-      </div>
+        </section>
+      
+        <script src="../../js/jquery.min.js"></script>
+        <script src="../../js/popper.js"></script>
+        <script src="../../js/bootstrap.min.js"></script>
+        <script src="../../js/main.js"></script>
+      
+        </body>
+      </html>
+      
+      
         
 
 

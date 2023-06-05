@@ -1,16 +1,16 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Register.css";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import Home2 from "../home/Home2";
+
 const RegisterHost = () => {
   const [credentials, setCredentials] = useState({
     username: undefined,
     email: undefined,
     password: undefined,
-    //isAdmin:false,
+    number: undefined,
   });
   const { loading, error, dispatch } = useContext(AuthContext);
 
@@ -18,6 +18,7 @@ const RegisterHost = () => {
   const handleAdminClick = () => {
     navigate('/loginHost');
   };
+
   const handleChange = (e) => {
     setCredentials((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
@@ -25,97 +26,138 @@ const RegisterHost = () => {
   const handleClick = async (e) => {
     e.preventDefault();
 
-    if (!credentials.username || !credentials.email || !credentials.password) {
+    if (!credentials.username || !credentials.email || !credentials.password || !credentials.number) {
       alert("Veuillez remplir tous les champs obligatoires");
       return;
     }
+
+    if (credentials.password.length < 8 ||
+      !/\d/.test(credentials.password) ||
+      !/[a-z]/.test(credentials.password) ||
+      !/[A-Z]/.test(credentials.password) ||
+      !/[!@#$%^&*()\-_=+[{\]}\\|;:'",<.>/?]/.test(credentials.password)) {
+      alert("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
+      return;
+    }
+    if(credentials.number.length !== 9) {
+      alert("Le mot de passe doit contenir 9 chifrres");
+    }
+    if (credentials.number === "123456789") {
+      alert("Le nombre ne peut pas être '123456789'.");
+      return;
+    }
+    
+
     dispatch({ type: "LOGIN_START" });
 
     try {
       const res = await axios.post("/auth/registerHost", credentials);
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
-      const adminId = res.data._id; 
+      const adminId = res.data._id;
       sessionStorage.setItem("adminId", adminId);
-      navigate(`/hostels`); 
-    
+      navigate(`/hostels`);
+
     } catch (err) {
       console.error(err.message);
     }
   };
 
   return (
-    <div className="">
-      <div className="container">
-        <div className="row">
-          <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
-            <div className="card border-0 shadow rounded-3 my-5">
-              <div className="card-body p-4 p-sm-5">
-                <h5 className="card-title text-center mb-5 fw-light fs-5">
-                  Register
-                </h5>
-                <form className="bd">
-                  <div className="form-floating mb-3">
-                    <input
-                      type="text"
-                      onChange={handleChange}
-                      className="form-control"
-                      id="username"
-                      placeholder="username"
-                      required
-                      pattern=".{8,}"
-                    />
-                    <label for="floatingInput">Username</label>
-                    <span className="error">{credentials.username && credentials.username.length < 4 ? "Le username doit comporter au moins 4 caractères" : null}</span>
-                 
-                  </div>
-                  <div className="form-floating mb-3">
-                    <input
-                      type="email"
-                      onChange={handleChange}
-                      className="form-control"
-                      id="email"
-                      placeholder="email"
-                      required
-                    />
-                   
-                    <label for="floatingInput">email</label> 
-                  
-                  </div>
-                  <div className="form-floating mb-3">
-                    <input
-                      type="password"
-                      className="form-control"
-                      id="password"
-                      onChange={handleChange}
-                      placeholder="Password"
-                      required
-                      pattern=".{8,}"
-                    />
-                   
-                    <label for="floatingPassword">Password</label>
-                    <span className="error">{credentials.password && credentials.password.length < 8 ? "Le password doit comporter au moins 8 caractères" : null}</span>
-                  
-                  </div>
-
-                  <div className="d-grid">
-                    <button
-                      disabled={loading}
-                      onClick={handleClick}
-                      className="btnn btn-login text-uppercase fw-bold"
-                      type="submit"
-                    >
-                      Sign in
-                    </button>
-                    {error && <span>{error.message}</span>}
-                  </div>
-                  <button onClick={handleAdminClick}>Se connecté</button>
-                </form>
+    <html lang="en">
+    <head>
+      <title>Login 10</title>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet"/>
+  
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    
+    <link rel="stylesheet" href="../../css6/style.css"/>
+    </head>
+    <body className="img js-fullheight" style={{backgroundImage: 'url(../../images/forr.jpg)'}}>
+    <section className="ftco-section">
+    <div className="container">
+      <div className="row justify-content-center">
+        <div className="col-md-6 text-center mb-5">
+          <h2 className="heading-section">Login</h2>
+        </div>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-md-6 col-lg-4">
+          <div className="login-wrap p-0">
+            <h3 className="mb-4 text-center">Vous avez déjà un compte</h3>
+            <form className="signin-form">
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="username"
+                  placeholder="Username"
+                  pattern=".{8,}"
+                  required
+                  onChange={handleChange}
+                />
               </div>
-            </div>
+              <div className="form-group">
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  placeholder="Email"
+                  required
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  className="form-control"
+                  id="password"
+                  placeholder="Password"
+                  required
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="number"
+                  placeholder="Entrez un nombre de 9 chiffres"
+                  maxLength={9}
+                  required
+                  onChange={handleChange}
+                />
+                <p style={{color:'white'}}>*Obligatoire en cas de perte de password !</p>
+              </div>
+              <div className="form-group">
+                <button
+                  type="submit"
+                  className="form-control btn btn-primary submit px-3"
+                  onClick={handleClick}
+                >
+                  Sign Up
+                </button>
+              </div>
+              {error && <span>{error.message}</span>}
+            </form>
+            <a href="" className="px-2 py-6 mr-md-1 rounded" onClick={handleAdminClick} style={{ marginTop: '3px' }}>
+              <span className="ion-logo-facebook mr-2"></span> Sign In
+            </a>
           </div>
         </div>
       </div>
     </div>
+    </section>
+    <script src="../../js/jquery.min.js"></script>
+    <script src="../../js/popper.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/main.js"></script>
+  
+    </body>
+    
+  </html>
   );
 };
 

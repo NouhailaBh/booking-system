@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Register.css";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
@@ -10,8 +10,10 @@ const Register = () => {
     username: undefined,
     email: undefined,
     password: undefined,
-    //isAdmin:false,
   });
+  const handleuserClick = () => {
+    navigate('/login');
+  };
   const { loading, error, dispatch } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -27,89 +29,108 @@ const Register = () => {
       alert("Veuillez remplir tous les champs obligatoires");
       return;
     }
+
+    // Password validation check
+    if (credentials.password.length < 8 ||
+        !/\d/.test(credentials.password) ||
+        !/[a-z]/.test(credentials.password) ||
+        !/[A-Z]/.test(credentials.password) ||
+        !/[!@#$%^&*()\-_=+[{\]}\\|;:'",<.>/?]/.test(credentials.password)) {
+      alert("Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
+      return;
+    }
+
     dispatch({ type: "LOGIN_START" });
 
     try {
       const res = await axios.post("/auth/register", credentials);
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
+      const userId = res.data._id;
+    sessionStorage.setItem("userId", userId);
       navigate("/");
     } catch (err) {
       console.error(err.message);
     }
   };
-
   return (
-    <div className="">
+    <html lang="en">
+    <head>
+      <title>Login 10</title>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet"/>
+  
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    
+    <link rel="stylesheet" href="../../css6/style.css"/>
+  
+    </head>
+    <body className="img js-fullheight" style={{backgroundImage: 'url(../../images2/hero_4.jpg)'}}>
+    <section className="ftco-section">
       <div className="container">
-        <div className="row">
-          <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
-            <div className="card border-0 shadow rounded-3 my-5">
-              <div className="card-body p-4 p-sm-5">
-                <h5 className="card-title text-center mb-5 fw-light fs-5">
-                  Register
-                </h5>
-                <form className="bd">
-                  <div className="form-floating mb-3">
-                    <input
-                      type="text"
-                      onChange={handleChange}
-                      className="form-control"
-                      id="username"
-                      placeholder="username"
-                      required
-                      pattern=".{8,}"
-                    />
-                    <label for="floatingInput">Username</label>
-                    <span className="error">{credentials.username && credentials.username.length < 4 ? "Le username doit comporter au moins 4 caractères" : null}</span>
-                 
-                  </div>
-                  <div className="form-floating mb-3">
-                    <input
-                      type="email"
-                      onChange={handleChange}
-                      className="form-control"
-                      id="email"
-                      placeholder="email"
-                      required
-                    />
-                   
-                    <label for="floatingInput">email</label> 
-                  
-                  </div>
-                  <div className="form-floating mb-3">
-                    <input
-                      type="password"
-                      className="form-control"
-                      id="password"
-                      onChange={handleChange}
-                      placeholder="Password"
-                      required
-                      pattern=".{8,}"
-                    />
-                   
-                    <label for="floatingPassword">Password</label>
-                    <span className="error">{credentials.password && credentials.password.length < 8 ? "Le password doit comporter au moins 8 caractères" : null}</span>
-                  
-                  </div>
-
-                  <div className="d-grid">
-                    <button
-                      disabled={loading}
-                      onClick={handleClick}
-                      className="btnn btn-login text-uppercase fw-bold"
-                      type="submit"
-                    >
-                      Sign in
-                    </button>
-                    {error && <span>{error.message}</span>}
-                  </div>
-                </form>
-              </div>
-            </div>
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center mb-5">
+            <h2 className="heading-section">Login</h2>
           </div>
         </div>
+        <div className="row justify-content-center">
+          <div className="col-md-6 col-lg-4">
+            <div className="login-wrap p-0">
+              <h3 className="mb-4 text-center">Vous avez déja un compte</h3>
+              <form action="#" className="signin-form">
+
+                <div className="form-group">
+                  <input type="text" className="form-control"
+                   onChange={handleChange} id="username" 
+                   placeholder="Username"  pattern=".{8,}" required/>
+                </div>
+               
+                <span className="error">{credentials.username && credentials.username.length < 8 ? "Le username doit comporter au moins 8 caractères Nom et Prenom" : null}</span>
+              <div className="form-group">
+                  <input type="email" className="form-control"
+                   onChange={handleChange} id="email" 
+                   placeholder="email"  required/>
+                </div>   
+                
+                
+                <div className="form-group">
+                  <input  type="password" onChange={handleChange} id="password" className="form-control" placeholder="Password" required/>
+                  <span toggle="#password-field" className="fa fa-fw fa-eye field-icon toggle-password"></span>
+                </div>
+                <span className="error">{credentials.password && credentials.password.length < 8 ? "Le password doit comporter au moins 8 caractères" : null}</span>
+                <div className="form-group">
+                  <button type="submit"  onClick={handleClick} className="form-control btn btn-primary submit px-3">Sign In</button>
+                </div>
+                {error && <span>{error.message}</span>}
+                <div className="form-group d-md-flex">
+                  <div className="w-50">
+                    
+                  </div>
+                  
+                </div>
+              </form>
+             
+              <div className="social d-flex text-center">
+                
+              </div>
+            </div><a href="" className="px-2 py-6 mr-md-1 rounded" onClick={handleuserClick} style={{marginTop:'3px'}}>
+              <span className="ion-logo-facebook mr-2"></span> Sign In</a>
+          <div className="w-20 text-md-right">
+                   
+                  </div></div>
+        </div>
+        
       </div>
-    </div>
+    </section>
+  
+    <script src="../../js/jquery.min.js"></script>
+    <script src="../../js/popper.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/main.js"></script>
+  
+    </body>
+  </html>
   );
 };
 

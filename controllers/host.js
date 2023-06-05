@@ -13,8 +13,6 @@ next(err);
 }
 }
 
-
-
                 export const deleteHost =async(req,res,next)=>{
                     try{
                         await Host.findByIdAndDelete(
@@ -25,7 +23,6 @@ next(err);
                 next(err);
                 }
                 }
-
 
 
 

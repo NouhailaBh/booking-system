@@ -5,13 +5,96 @@ import { Link } from "react-router-dom";
 import { Carousel } from "react-responsive-carousel";
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import "./VoirUneRoom.css";
-const VoirUneRoom = () => {
+import { useContext } from "react";
+import { AuthContextHost } from "../../context/AuthContextHost";
+import { Image } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
+const RoomHost = () => {
   const [room, setRoom] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const roomId = searchParams.get('room');
-  const hotelId = searchParams.get('hotel');
+  const roomId = searchParams.get('roomId');
+  const hotelId = searchParams.get('id');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const {host,dispatch} =useContext(AuthContextHost);
 
+    const handleFileInputChange = (event) => {
+      setSelectedFile(event.target.files[0]);
+    };
+    const handleUploadPhoto = async (roomId) => {
+        if (!selectedFile) {
+          return;
+        }
+      
+        try {
+          const data = new FormData();
+          data.append('file', selectedFile);
+          data.append('upload_preset', 'upload');
+      
+          const uploadRes = await axios.post(
+            'https://api.cloudinary.com/v1_1/dcfe1dwkh/image/upload',
+            data
+          );
+      
+          const imageUrl = uploadRes.data.url;
+      
+          await axios.post(`http://localhost:4001/api/rooms/${roomId}/photos`, {
+            imageUrl,
+          });
+      
+          fetchRoomDetails();
+      
+          setSelectedFile(null);
+        } catch (error) {
+          console.error(error);
+          // Gérez les erreurs de téléchargement de photo ici (affichage d'un message d'erreur, etc.)
+        }
+      };
+      
+      
+      const handleDeletePhoto = async (roomId, photoIndex) => {
+        try {
+          const confirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cette image ?");
+      
+          if (!confirmed) {
+            return;
+          }
+      
+          await axios.delete(
+            `http://localhost:4001/api/rooms/${roomId}/photos/${photoIndex}`
+          );
+      
+          const updatedPhotos = room.photos.filter((photo, index) => index !== photoIndex);
+      
+          setRoom(prevRoom => ({
+            ...prevRoom,
+            photos: updatedPhotos
+          }));
+      
+          // Récupérer les détails mis à jour de la chambre
+          fetchRoomDetails();
+        } catch (error) {
+          console.error(error);
+          // Gérez les erreurs de suppression de photo ici (affichage d'un message d'erreur, etc.)
+        }
+      };
+      
+      const fetchRoomDetails = () => {
+        axios
+          .get(`http://localhost:4001/api/rooms/${roomId}`)
+          .then((response) => {
+            setRoom(response.data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      };
+      
+      useEffect(() => {
+        fetchRoomDetails();
+      }, [roomId]);
+      
   useEffect(() => {
     // Effectuez une requête pour obtenir les détails de la chambre avec l'ID correspondant à "roomId"
     axios.get(`http://localhost:4001/api/rooms/${roomId}`)
@@ -72,27 +155,41 @@ const VoirUneRoom = () => {
       <header className="">
         {room ? (
           <div className="blog_box" key={room._id}>
-            {room.photos && room.photos.length > 0 ? (
-              <div>
-                <div className="carousel-navigation">
-                  <Carousel
-                    showThumbs={false}
-                    showArrows={true}
-                    renderArrowPrev={renderArrowPrev}
-                    renderArrowNext={renderArrowNext}
-                  >
-                    {room.photos.map((photo, index) => (
-                      <div key={index}>
-                        <img src={photo} alt={`Room photo ${index}`} />
-                      </div>
-                    ))}
-                  </Carousel>
-                </div>
-              </div>
-            ) : (
-              <p>No images available for this room.</p>
-            )}
+           {room.photos && room.photos.length > 0 ? (
+  <div>
+    <div className="carousel-navigation">
+      <Carousel
+        showThumbs={false}
+        showArrows={true}
+        renderArrowPrev={renderArrowPrev}
+        renderArrowNext={renderArrowNext}
+      >
+        {room.photos.map((photo, index) => (
+          <div key={index}>
+            <img src={photo} alt={`Room photo ${index}`} />
+            <div>
+            <button className="btn btn-danger" style={{marginTop:'-500px'}} onClick={() => handleDeletePhoto(room._id, index)}><Image/> Supprimer image</button>
+        </div>  </div>
+        ))}
+      </Carousel>
+    </div>
+  </div>
+) : (
+  <p>No images available for this room.</p>
+)}
+
+
+             <div>
+             <div>
+  <input type="file" className="input-file" onChange={handleFileInputChange} />
+ <div className="container"> <button className="btn btn-success" onClick={() => handleUploadPhoto(room._id)} >
+   <Image/> Ajouter image
+  </button></div>
+</div>
+
+        </div>
           </div>
+          
         ) : (
           <p>Loading room...</p>
         )}
@@ -135,7 +232,7 @@ const VoirUneRoom = () => {
                   </div>
                   <hr class="my-4" />  
             
-                    <div class="d-flex justify-content-end mb-4"><Link class="btn btn-primary text-uppercase" to={`/rooms?id=${hotelId}`}>Retourner Pour Réserver</Link></div>
+                    <div class="d-flex justify-content-end mb-4"><Link class="btn btn-primary text-uppercase" to={`/view-rooms?id=${hotelId}`}>Retourner</Link></div>
                 </div>
             </div>
         </div>
@@ -187,4 +284,4 @@ const VoirUneRoom = () => {
   );
 };
 
-export default VoirUneRoom;
+export default RoomHost;
